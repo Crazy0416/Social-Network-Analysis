@@ -1,0 +1,41 @@
+﻿  CoauthorshipGraphWidget.cpp
+  EdgeItem.cpp
+  moc_CoauthorshipGraphWidget.cpp
+  moc_dblpanalysisapp.cpp
+  dblpanalysisapp.cpp
+D:\Visual Studio2015\VC\include\xutility(2372): warning C4996: 'std::copy::_Unchecked_iterators::_Deprecate': Call to 'std::copy' with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
+  D:\Visual Studio2015\VC\include\xutility(2372): note: 'std::copy::_Unchecked_iterators::_Deprecate' 선언을 참조하십시오.
+  D:\boost_1_63_0\boost/algorithm/string/detail/classification.hpp(102): note: 컴파일 중인 함수 템플릿 인스턴스화 '_OutIt *std::copy<const char*,char*>(_InIt,_InIt,_OutIt)'에 대한 참조를 확인하십시오.
+          with
+          [
+              _OutIt=char *,
+              _InIt=const char *
+          ]
+  D:\boost_1_63_0\boost/algorithm/string/classification.hpp(206): note: 컴파일 중인 함수 템플릿 인스턴스화 'boost::algorithm::detail::is_any_ofF<char>::is_any_ofF<boost::iterator_range<const char *>>(const RangeT &)'에 대한 참조를 확인하십시오.
+          with
+          [
+              RangeT=boost::iterator_range<const char *>
+          ]
+  D:\boost_1_63_0\boost/algorithm/string/classification.hpp(206): note: 컴파일 중인 함수 템플릿 인스턴스화 'boost::algorithm::detail::is_any_ofF<char>::is_any_ofF<boost::iterator_range<const char *>>(const RangeT &)'에 대한 참조를 확인하십시오.
+          with
+          [
+              RangeT=boost::iterator_range<const char *>
+          ]
+  dblpanalysisapp.cpp(190): note: 컴파일 중인 함수 템플릿 인스턴스화 'boost::algorithm::detail::is_any_ofF<char> boost::algorithm::is_any_of<char[3]>(const RangeT (&))'에 대한 참조를 확인하십시오.
+          with
+          [
+              RangeT=char [3]
+          ]
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(54): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<9>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(53): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<8>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(52): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<7>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(51): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<6>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(50): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<5>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(49): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<4>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(48): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<3>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(47): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<2>'에 대한 참조를 확인하십시오.
+  D:\boost_1_63_0\boost/bind/placeholders.hpp(46): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<1>'에 대한 참조를 확인하십시오.
+  main.cpp
+  코드를 생성하고 있습니다...
+  dblpAnalysisApp.vcxproj -> C:\Users\minmi\Desktop\설프C프로젝트\x64\Debug\dblpAnalysisApp.exe
+  dblpAnalysisApp.vcxproj -> C:\Users\minmi\Desktop\설프C프로젝트\x64\Debug\dblpAnalysisApp.pdb (Full PDB)
