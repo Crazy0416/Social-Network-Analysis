@@ -8,6 +8,7 @@
 #include <boost/graph/topology.hpp>
 #include <boost/graph/graph_traits.hpp>
 
+
 #include "ui_CoauthorshipGraphWidget.h"
 #include "EdgeItem.h"
 #include "GraphicsView.h"

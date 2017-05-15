@@ -1,41 +1,11 @@
-﻿  CoauthorshipGraphWidget.cpp
-  EdgeItem.cpp
-  moc_CoauthorshipGraphWidget.cpp
-  moc_dblpanalysisapp.cpp
-  dblpanalysisapp.cpp
-D:\Visual Studio2015\VC\include\xutility(2372): warning C4996: 'std::copy::_Unchecked_iterators::_Deprecate': Call to 'std::copy' with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
-  D:\Visual Studio2015\VC\include\xutility(2372): note: 'std::copy::_Unchecked_iterators::_Deprecate' 선언을 참조하십시오.
-  D:\boost_1_63_0\boost/algorithm/string/detail/classification.hpp(102): note: 컴파일 중인 함수 템플릿 인스턴스화 '_OutIt *std::copy<const char*,char*>(_InIt,_InIt,_OutIt)'에 대한 참조를 확인하십시오.
-          with
-          [
-              _OutIt=char *,
-              _InIt=const char *
-          ]
-  D:\boost_1_63_0\boost/algorithm/string/classification.hpp(206): note: 컴파일 중인 함수 템플릿 인스턴스화 'boost::algorithm::detail::is_any_ofF<char>::is_any_ofF<boost::iterator_range<const char *>>(const RangeT &)'에 대한 참조를 확인하십시오.
-          with
-          [
-              RangeT=boost::iterator_range<const char *>
-          ]
-  D:\boost_1_63_0\boost/algorithm/string/classification.hpp(206): note: 컴파일 중인 함수 템플릿 인스턴스화 'boost::algorithm::detail::is_any_ofF<char>::is_any_ofF<boost::iterator_range<const char *>>(const RangeT &)'에 대한 참조를 확인하십시오.
-          with
-          [
-              RangeT=boost::iterator_range<const char *>
-          ]
-  dblpanalysisapp.cpp(190): note: 컴파일 중인 함수 템플릿 인스턴스화 'boost::algorithm::detail::is_any_ofF<char> boost::algorithm::is_any_of<char[3]>(const RangeT (&))'에 대한 참조를 확인하십시오.
-          with
-          [
-              RangeT=char [3]
-          ]
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(54): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<9>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(53): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<8>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(52): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<7>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(51): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<6>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(50): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<5>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(49): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<4>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(48): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<3>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(47): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<2>'에 대한 참조를 확인하십시오.
-  D:\boost_1_63_0\boost/bind/placeholders.hpp(46): note: 컴파일 중인 클래스 템플릿 인스턴스화 'boost::arg<1>'에 대한 참조를 확인하십시오.
-  main.cpp
-  코드를 생성하고 있습니다...
-  dblpAnalysisApp.vcxproj -> C:\Users\minmi\Desktop\설프C프로젝트\x64\Debug\dblpAnalysisApp.exe
-  dblpAnalysisApp.vcxproj -> C:\Users\minmi\Desktop\설프C프로젝트\x64\Debug\dblpAnalysisApp.pdb (Full PDB)
+﻿dblpanalysisapp.obj : error LNK2019: __imp_curl_slist_append 외부 기호(참조 위치: "public: void __cdecl webdriverxx::detail::HttpHeaders::Add(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?Add@HttpHeaders@detail@webdriverxx@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_slist_free_all 외부 기호(참조 위치: "public: __cdecl webdriverxx::detail::HttpHeaders::~HttpHeaders(void)" (??1HttpHeaders@detail@webdriverxx@@QEAA@XZ) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_strerror 외부 기호(참조 위치: "protected: void __cdecl webdriverxx::detail::HttpRequest::SetOption<unsigned __int64 __cdecl(void *,unsigned __int64,unsigned __int64,void *)>(enum CURLoption,unsigned __int64 (__cdecl&)(void *,unsigned __int64,unsigned __int64,void *))const " (??$SetOption@$$A6A_KPEAX_K10@Z@HttpRequest@detail@webdriverxx@@IEBAXW4CURLoption@@A6A_KPEAX_K21@Z@Z) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_init 외부 기호(참조 위치: "private: static void * __cdecl webdriverxx::detail::HttpConnection::InitCurl(void)" (?InitCurl@HttpConnection@detail@webdriverxx@@CAPEAXXZ) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_setopt 외부 기호(참조 위치: "protected: void __cdecl webdriverxx::detail::HttpRequest::SetOption<unsigned __int64 __cdecl(void *,unsigned __int64,unsigned __int64,void *)>(enum CURLoption,unsigned __int64 (__cdecl&)(void *,unsigned __int64,unsigned __int64,void *))const " (??$SetOption@$$A6A_KPEAX_K10@Z@HttpRequest@detail@webdriverxx@@IEBAXW4CURLoption@@A6A_KPEAX_K21@Z@Z) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_perform 외부 기호(참조 위치: "public: struct webdriverxx::detail::HttpResponse __cdecl webdriverxx::detail::HttpRequest::Execute(void)" (?Execute@HttpRequest@detail@webdriverxx@@QEAA?AUHttpResponse@23@XZ) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_cleanup 외부 기호(참조 위치: "public: virtual __cdecl webdriverxx::detail::HttpConnection::~HttpConnection(void)" (??1HttpConnection@detail@webdriverxx@@UEAA@XZ) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_getinfo 외부 기호(참조 위치: "private: long __cdecl webdriverxx::detail::HttpRequest::GetHttpCode(void)const " (?GetHttpCode@HttpRequest@detail@webdriverxx@@AEBAJXZ) 함수)에서 확인하지 못했습니다.
+dblpanalysisapp.obj : error LNK2019: __imp_curl_easy_reset 외부 기호(참조 위치: "public: struct webdriverxx::detail::HttpResponse __cdecl webdriverxx::detail::HttpRequest::Execute(void)" (?Execute@HttpRequest@detail@webdriverxx@@QEAA?AUHttpResponse@23@XZ) 함수)에서 확인하지 못했습니다.
+D:\libcurl\lib\Debug\curllib.lib : warning LNK4272: 'X86' 라이브러리 컴퓨터 종류가 'x64' 대상 컴퓨터 종류와 충돌합니다.
+D:\My_Project\Social-Network-Analysis\x64\Debug\\dblpAnalysisApp.exe : fatal error LNK1120: 9개의 확인할 수 없는 외부 참조입니다.

@@ -5,16 +5,21 @@
 #include "ui_dblpanalysisapp.h"
 
 #include "CoauthorshipGraphWidget.h"
+#include "listInput.h"
 
 #include <QtWidgets/QApplication>
+#include <qlistwidget.h>
 #include <QDebug>
 #include <algorithm>
 #include <exception>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <map>
 #include <vector>
+
+#include <webdriverxx.h>
 
 #include <boost/graph/fruchterman_reingold.hpp>
 //#include <boost/graph/kamada_kawai_spring_layout.hpp>
@@ -25,6 +30,7 @@
 #include <boost/bimap.hpp>
 
 using namespace std;
+using namespace webdriverxx;
 
 enum GRAPH_LAYOUT {
 	RANDOM_LAYOUT,
@@ -34,7 +40,7 @@ enum GRAPH_LAYOUT {
 };
 const int LAYOUT_MODE = GRAPH_LAYOUT::RANDOM_LAYOUT;
 const int SCREEN_SIZE = 500;
-const int NODE_LIMIT = 100;
+const int NODE_LIMIT = 50;
 
 class dblpAnalysisApp : public QMainWindow
 {
@@ -62,4 +68,5 @@ private:
 	void Main_TopK();
 	void Main_TopKfromA();
 	void Main_Chain();
+	void Main_AuthorCrawling();
 };

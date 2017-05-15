@@ -40,11 +40,15 @@ dblpAnalysisApp::dblpAnalysisApp(QWidget *parent)
 		QAction *pSlotChain = new QAction(tr("Chain from A to B"), this);
 		QObject::connect(pSlotChain, SIGNAL(triggered()), this, SLOT(Main_Chain()));
 
+		QAction *pSlotAuthorCrawling = new QAction(tr("Author Crawling"), this);
+		QObject::connect(pSlotAuthorCrawling, SIGNAL(triggered()), this, SLOT(Main_AuthorCrawling()));
+
 		pAppMenu = menuBar()->addMenu(tr("Basic Menu"));
 		pAppMenu->addAction(pSlotVisualize);
 		pAppMenu->addAction(pSlotTopK);
 		pAppMenu->addAction(pSlotTopKfromA);
 		pAppMenu->addAction(pSlotChain);
+		pAppMenu->addAction(pSlotAuthorCrawling);
 
 		// 추가 기능 관련 메뉴 설정
 	/* 미구현 */
@@ -156,6 +160,58 @@ void dblpAnalysisApp::Main_Chain() // 특정 노드로부터 다른 한 노드로 가는 Shorte
 		return;
 	}
 	pCGW->bfs(author1_index, author2_index, cgraph, cgraph_cnt);
+}
+
+void dblpAnalysisApp::Main_AuthorCrawling()
+{
+	
+	pCGW = new CoauthorshipGraphWidget;
+	pCGW->print_graph(cgraph);
+	pCGW->show();
+	
+	/*
+	QListWidget* listwidget = new QListWidget;
+	listwidget->addItem("asdg");
+	listwidget->show();
+	
+	ListInput* list = new ListInput();
+	list->addItem("test2");
+	list->addItem("test3");
+	list->addItem("test4");
+	list->addItem("test5");
+	list->show();
+
+	*/
+	bool ok1;
+
+	// 찾고 싶은 사람 입력 받음
+	QString author1 = QInputDialog::getText(NULL, "Input Data Key which you want to find", "Input Data Key which you want to find", QLineEdit::Normal, "", &ok1);
+
+	if (ok1 && !author1.isEmpty())		// 빈칸이 아니고 ok 버튼을 눌렀을 경우
+	{
+		qDebug() << author1;
+
+		WebDriver firefox = Start(Firefox());
+
+		string dblpURL = "http://dblp.uni-trier.de/rec/xml/";
+
+		dblpURL += author1.toStdString() + ".xml";
+
+		vector<Element> menu = firefox
+			.Navigate(dblpURL)
+			.FindElements(ByTag("title"));
+
+		for (Element i : menu)
+		{
+			QString tmp = QString::fromStdString(i.GetText());
+			qDebug() << tmp << endl;
+		}
+	}
+	else
+	{
+		qDebug() << "error!!!";
+	}
+	
 }
 
 //=====================================================================================================
