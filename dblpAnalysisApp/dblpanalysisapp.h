@@ -19,8 +19,6 @@
 #include <map>
 #include <vector>
 
-#include <webdriverxx.h>
-
 #include <boost/graph/fruchterman_reingold.hpp>
 //#include <boost/graph/kamada_kawai_spring_layout.hpp>
 #include <boost/graph/random_layout.hpp>
@@ -30,7 +28,6 @@
 #include <boost/bimap.hpp>
 
 using namespace std;
-using namespace webdriverxx;
 
 enum GRAPH_LAYOUT {
 	RANDOM_LAYOUT,

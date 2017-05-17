@@ -58,7 +58,6 @@ dblpAnalysisApp::dblpAnalysisApp(QWidget *parent)
 		// 상태 바 연결
 		pStatusBar = statusBar();
 	}
-
 	// Co-authorgraph 파일 읽기
 	load_COAU_FILE();
 }
@@ -164,54 +163,24 @@ void dblpAnalysisApp::Main_Chain() // 특정 노드로부터 다른 한 노드로 가는 Shorte
 
 void dblpAnalysisApp::Main_AuthorCrawling()
 {
-	
-	pCGW = new CoauthorshipGraphWidget;
-	pCGW->print_graph(cgraph);
-	pCGW->show();
-	
-	/*
-	QListWidget* listwidget = new QListWidget;
-	listwidget->addItem("asdg");
-	listwidget->show();
-	
+	// 리스트 위젯을 넣을 창 만듦
 	ListInput* list = new ListInput();
-	list->addItem("test2");
-	list->addItem("test3");
-	list->addItem("test4");
-	list->addItem("test5");
-	list->show();
 
-	*/
-	bool ok1;
-
-	// 찾고 싶은 사람 입력 받음
-	QString author1 = QInputDialog::getText(NULL, "Input Data Key which you want to find", "Input Data Key which you want to find", QLineEdit::Normal, "", &ok1);
-
-	if (ok1 && !author1.isEmpty())		// 빈칸이 아니고 ok 버튼을 눌렀을 경우
-	{
-		qDebug() << author1;
-
-		WebDriver firefox = Start(Firefox());
-
-		string dblpURL = "http://dblp.uni-trier.de/rec/xml/";
-
-		dblpURL += author1.toStdString() + ".xml";
-
-		vector<Element> menu = firefox
-			.Navigate(dblpURL)
-			.FindElements(ByTag("title"));
-
-		for (Element i : menu)
-		{
-			QString tmp = QString::fromStdString(i.GetText());
-			qDebug() << tmp << endl;
-		}
-	}
-	else
-	{
-		qDebug() << "error!!!";
+	// 리스트 창에 author 데이터 넣음
+	graph_traits<CGraph>::vertex_iterator vi, ve;
+	auto Cgraph_vertex_name = get(vertex_name, cgraph);
+	int cnt = 1;
+	for (tie(vi, ve) = vertices(cgraph); vi != ve; ++vi) {
+		//qDebug() << Cgraph_vertex_name[*vi].c_str();
+		//qDebug() << Cgraph_vertex_index[*vi];
+		QString tmp = QString::number(cnt);
+		tmp.append(".");
+		tmp.append(Cgraph_vertex_name[*vi].c_str());
+		list->addItem(tmp);
+		cnt++;
 	}
 	
+	list->show();
 }
 
 //=====================================================================================================
