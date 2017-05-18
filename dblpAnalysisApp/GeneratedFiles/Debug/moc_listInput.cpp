@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_ListInput_t {
-    QByteArrayData data[6];
-    char stringdata0[89];
+    QByteArrayData data[3];
+    char stringdata0[39];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,16 +32,12 @@ struct qt_meta_stringdata_ListInput_t {
 static const qt_meta_stringdata_ListInput_t qt_meta_stringdata_ListInput = {
     {
 QT_MOC_LITERAL(0, 0, 9), // "ListInput"
-QT_MOC_LITERAL(1, 10, 22), // "throwSecondWidgetIndex"
-QT_MOC_LITERAL(2, 33, 0), // ""
-QT_MOC_LITERAL(3, 34, 5), // "index"
-QT_MOC_LITERAL(4, 40, 20), // "getSecondWidgetIndex"
-QT_MOC_LITERAL(5, 61, 27) // "on_PushSelectButton_Clicked"
+QT_MOC_LITERAL(1, 10, 27), // "on_PushSelectButton_Clicked"
+QT_MOC_LITERAL(2, 38, 0) // ""
 
     },
-    "ListInput\0throwSecondWidgetIndex\0\0"
-    "index\0getSecondWidgetIndex\0"
-    "on_PushSelectButton_Clicked"
+    "ListInput\0on_PushSelectButton_Clicked\0"
+    ""
 };
 #undef QT_MOC_LITERAL
 
@@ -51,25 +47,17 @@ static const uint qt_meta_data_ListInput[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       1,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
-
- // signals: name, argc, parameters, tag, flags
-       1,    1,   29,    2, 0x06 /* Public */,
+       0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       4,    1,   32,    2, 0x0a /* Public */,
-       5,    0,   35,    2, 0x0a /* Public */,
-
- // signals: parameters
-    QMetaType::Void, QMetaType::Int,    3,
+       1,    0,   19,    2, 0x0a /* Public */,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::Int,    3,
     QMetaType::Void,
 
        0        // eod
@@ -81,22 +69,11 @@ void ListInput::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         ListInput *_t = static_cast<ListInput *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->throwSecondWidgetIndex((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 1: _t->getSecondWidgetIndex((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 2: _t->on_PushSelectButton_Clicked(); break;
+        case 0: _t->on_PushSelectButton_Clicked(); break;
         default: ;
         }
-    } else if (_c == QMetaObject::IndexOfMethod) {
-        int *result = reinterpret_cast<int *>(_a[0]);
-        void **func = reinterpret_cast<void **>(_a[1]);
-        {
-            typedef void (ListInput::*_t)(int );
-            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&ListInput::throwSecondWidgetIndex)) {
-                *result = 0;
-                return;
-            }
-        }
     }
+    Q_UNUSED(_a);
 }
 
 const QMetaObject ListInput::staticMetaObject = {
@@ -124,22 +101,15 @@ int ListInput::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 1)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 1;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 1)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 3;
+        _id -= 1;
     }
     return _id;
-}
-
-// SIGNAL 0
-void ListInput::throwSecondWidgetIndex(int _t1)
-{
-    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

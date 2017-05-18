@@ -22,6 +22,7 @@ namespace boost {
 	BOOST_INSTALL_PROPERTY(vertex, position);
 }
 typedef square_topology<>::point_type point;
+// 노드의 인덱스로 엣지를 표현
 struct simple_edge {
 	int first, second;
 };
@@ -29,6 +30,7 @@ typedef boost::property<vertex_index_t, int,
 	boost::property<vertex_name_t, std::string,
 	boost::property<vertex_position_t, point>>
 	> VertexProperties;
+// 그래프 데이터
 typedef adjacency_list<
 	listS,	//outEdgeList
 	listS,	//VertexList
@@ -39,7 +41,9 @@ typedef adjacency_list<
 	boost::property<edge_weight_t, double>
 > CGraph;
 
-
+/*
+*
+*/
 class CoauthorshipGraphWidget : public QWidget
 {
 	Q_OBJECT
