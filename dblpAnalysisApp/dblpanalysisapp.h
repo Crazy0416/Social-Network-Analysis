@@ -2,42 +2,14 @@
 
 #include <QtWidgets/QMainWindow>
 #include <qinputdialog.h>
-#include "ui_dblpanalysisapp.h"
-
-#include "CoauthorshipGraphWidget.h"
-#include "listInput.h"
-
-#include <QtWidgets/QApplication>
+#include <qgridlayout.h>
 #include <qlistwidget.h>
-#include <QDebug>
-#include <algorithm>
-#include <exception>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <string>
-#include <map>
 #include <vector>
 
-#include <boost/graph/fruchterman_reingold.hpp>
-//#include <boost/graph/kamada_kawai_spring_layout.hpp>
-#include <boost/graph/random_layout.hpp>
-#include <boost/graph/circle_layout.hpp>
-#include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/algorithm/string.hpp>	//boost::split
-#include <boost/bimap.hpp>
-
-using namespace std;
-
-enum GRAPH_LAYOUT {
-	RANDOM_LAYOUT,
-	CIRCLE_LAYOUT,
-	//KAMADA_KAWAI_LAYOUT,
-	FRUCHTERMAN_REINGOLD_LAYOUT	//slow
-};
-const int LAYOUT_MODE = GRAPH_LAYOUT::RANDOM_LAYOUT;
-const int SCREEN_SIZE = 500;
-const int NODE_LIMIT = 50;
+#include "ui_dblpanalysisapp.h"
+#include "GraphItem.h"
+#include "subwindow.h"
+#include "listInput.h"
 
 class dblpAnalysisApp : public QMainWindow
 {
@@ -47,23 +19,36 @@ public:
 	dblpAnalysisApp(QWidget *parent = 0);
 	~dblpAnalysisApp();
 
-	int load_COAU_FILE();
-	CGraph read_cgraph(ifstream& in);
+	void load_CGI();
+	void load_PGI();
 
 private:
 	Ui::dblpAnalysisAppClass ui;
 	QGraphicsScene *scene;
 
-	CGraph cgraph;
-	int cgraph_cnt;
-	CoauthorshipGraphWidget* pCGW;
+	const char* COAUTHORSHIP_FILENAME = "dblp-coauthor.txt";
+	const char* PAPER_FILENAME = "dblp-paper.txt";
 
-	const char* COAU_FILENAME = "dblp-coauthor.txt";
+	CoauthorGraphItem* pCGI;
+	PaperGraphItem* pPGI;
+
+	QListWidget* subscribeListWidget;		// 구독자 리스트 위젯
+	vector<QString> subscribeArray;			// 구독자 이름 배열
 
 	public slots :
-	void Main_SlotVisualize();
+	// 스트리밍 데이터 처리
+	void updateCGI(); 
+	void updatePGI();
+
+	// 기본 기능
+	void Main_Visualization();
 	void Main_TopK();
 	void Main_TopKfromA();
 	void Main_Chain();
 	void Main_AuthorCrawling();
+
+	// 추가 기능
+	void showPG();
+	void showSubscribe();
+	void manageSubscribe();
 };

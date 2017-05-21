@@ -3,7 +3,6 @@
 
 void EdgeItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
-	qDebug() << "Custom item clicked.";
 }
 
 void EdgeItem::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
@@ -23,9 +22,7 @@ EdgeItem::EdgeItem(double x1, double y1, double x2, double y2, QColor color, int
 
 	this->color = color;
 	this->width = width;
-	setAcceptHoverEvents(true);
-	setFlags(ItemIsSelectable | ItemIsMovable);
-	setZValue(1);	//노드 앞 가리지 않도록 ZValue 설정
+	setZValue(0);	//노드 앞 가리지 않도록 ZValue 설정
 
 					/*setFlags(ItemIsSelectable | ItemIsMovable);
 					setAcceptHoverEvents(true);*/
@@ -52,8 +49,4 @@ void EdgeItem::paint(QPainter * painter, const QStyleOptionGraphicsItem * option
 	pen.setColor(color);
 	painter->setPen(pen);
 	painter->drawLine(QLineF(x1, y1, x2, y2));
-}
-void EdgeItem::setColor(QColor color)
-{
-	this->color = color;
 }

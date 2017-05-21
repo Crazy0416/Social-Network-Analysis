@@ -1,5 +1,6 @@
 #include "NodeItem.h"
 #include <QtWidgets>
+#include <QMessageBox>
 
 void NodeItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
@@ -13,16 +14,26 @@ void NodeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
 }
 
-NodeItem::NodeItem(int x, int y, QString label)
+NodeItem::NodeItem(double x, double y, QColor color, QString label)
 {
 	this->x = x;
 	this->y = y;
-	this->color = QColor(Qt::green);
+	this->color = color;
 	this->label = label;
-	setZValue(2);
-	
+	setZValue(1);
+
 	setFlags(ItemIsSelectable | ItemIsMovable);
 	setAcceptHoverEvents(true);
+}
+
+NodeItem::NodeItem(double x, double y, QColor color, QString label, int weightSum)
+{
+	this->x = x;
+	this->y = y;
+	this->color = color;
+	this->label = label;
+	this->weightSum = weightSum;
+	setZValue(1);
 }
 
 QRectF NodeItem::boundingRect() const
@@ -33,7 +44,6 @@ QRectF NodeItem::boundingRect() const
 QPainterPath NodeItem::shape() const
 {
 	QPainterPath path;
-	//path.addRect(14, 14, 82, 42);
 	path.addRect(0, 0, NODE_SIZE, NODE_SIZE);
 	return path;
 }
@@ -42,27 +52,40 @@ void NodeItem::paint(QPainter * painter, const QStyleOptionGraphicsItem * option
 {
 	Q_UNUSED(widget);
 
+	//set node pen style
+	QPen oldPen = painter->pen();
+	QPen pen = oldPen;
+	pen.setWidth(0);
+	pen.setColor(QColor(Qt::black));
+
 	//label 출력
-	QFont font("Gulim", 10);
+	QFont font("Gulim", 3);
 	font.setStyleStrategy(QFont::ForceOutline);
 	painter->setFont(font);
 	painter->save();
-	painter->scale(0.3, 0.3);
-	painter->drawText(0, 0, label);
+	painter->drawText(x, y, label);
 	painter->restore();
 
 
-	//Rectangle 출력
+	//node rectangle 출력
 	QColor fillColor = (option->state & QStyle::State_Selected) ? color.dark(150) : color;
 	if (option->state & QStyle::State_MouseOver) fillColor = fillColor.light(125);
-	QPen pen = painter->pen();
-	pen.setWidth(0);
-	pen.setColor(QColor(Qt::black));
 	painter->setPen(pen);
 	painter->setBrush(QBrush(fillColor));
-	painter->drawRect(0, 0, NODE_SIZE, NODE_SIZE);
+	painter->drawRect(x, y, NODE_SIZE, NODE_SIZE);
 }
+
 void NodeItem::setColor(QColor color)
 {
 	this->color = color;
+}
+
+int NodeItem::getWeightSum()
+{
+	return weightSum;
+}
+
+QString NodeItem::getLabel()
+{
+	return label;
 }

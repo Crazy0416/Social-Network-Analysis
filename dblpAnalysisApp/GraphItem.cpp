@@ -1,0 +1,1086 @@
+#include "GraphItem.h"
+
+void _ReheapUp(vector<NodeItem*> v, int root, int last)
+{
+
+	int parent = (last - 1) / 2;
+
+	if (last > root)
+	{
+		if (*v[parent] > *v[last])
+		{
+			swap(v[parent], v[last]);
+			_ReheapUp(v, root, parent);
+		}
+	}
+}
+void _ReheapDown(vector<NodeItem*> v, int root, int last)
+{
+
+	int minChild;
+	int rightChild = root * 2 + 2;
+	int leftChild = root * 2 + 1;
+
+	if (leftChild <= last)
+	{
+		if (leftChild == last)
+			minChild = leftChild;
+		else
+		{
+			if (*v[leftChild] > *v[rightChild])
+				minChild = rightChild;
+			else
+				minChild = leftChild;
+		}
+
+		if (*v[root] > *v[minChild])
+		{
+			swap(v[root], v[minChild]);
+			_ReheapDown(v, minChild, last);
+		}
+	}
+}
+
+void CoauthorGraphItem::ReheapUp(vector<int> v, int root, int last)
+{
+
+	int parent = (last - 1) / 2;
+
+	if (last > root)
+	{
+		if (*nodeList[v[parent]] < *nodeList[v[last]])
+		{
+			swap(v[parent], v[last]);
+			ReheapUp(v, root, parent);
+		}
+	}
+}
+void CoauthorGraphItem::ReheapDown(vector<int> v, int root, int last)
+{
+
+	int maxChild;
+	int rightChild = root * 2 + 2;
+	int leftChild = root * 2 + 1;
+
+	if (leftChild <= last)
+	{
+		if (leftChild == last)
+			maxChild = leftChild;
+		else
+		{
+			if (*nodeList[v[leftChild]] < *nodeList[v[rightChild]])
+				maxChild = rightChild;
+			else
+				maxChild = leftChild;
+		}
+
+		if (*nodeList[v[root]] < *nodeList[v[maxChild]])
+		{
+			swap(v[root], v[maxChild]);
+			ReheapDown(v, maxChild, last);
+		}
+	}
+}
+
+CoauthorGraphItem::CoauthorGraphItem(ifstream& fin)
+{
+	if (!fin)
+		throw std::exception("coauthor graph file input is invalid");
+
+	/**
+	*	Parse Coauthor dataset
+	*	- author1, author2 publish_year
+	*	Column Delimiter:		||
+	*/
+	std::string line;
+	vector<std::string> tokens;
+
+	node_cnt = 0;
+	qDebug() << "* couathor graph reading start";
+
+	//한 줄씩 읽어서 Parse
+	while (std::getline(fin, line) && !line.empty()) {
+		line_cnt++;
+
+		//boost::split 이용해 문자열 분리
+		//tokens[0]: Author1
+		//tokens[1]: Author2
+		//tokens[2]: Published year.
+		boost::split(tokens, line, boost::is_any_of("||"), boost::token_compress_on);
+
+		const string& author1 = tokens[0];
+		const string& author2 = tokens[1];
+		if (node_ids.left.find(author1) == node_ids.left.end()) {
+			node_ids.insert(bm_type::value_type(author1, node_cnt++));
+		}
+
+		if (node_ids.left.find(author2) == node_ids.left.end()) {
+			node_ids.insert(bm_type::value_type(author2, node_cnt++));
+		}
+
+		edges.push_back(pair<string, string>(author1, author2));
+
+		//debug
+		if (node_cnt > NODE_LIMIT) break;
+	}
+	qDebug() << "* coauthor graph reading complete";
+	qDebug() << "* # of nodes: " << node_cnt;
+	qDebug() << "* # of edges: " << edges.size();
+
+	//edge conversion
+	//<string, string> to <int, int>
+	//using boost::bimap (bidirectional map)
+	for (auto edge : edges) {
+		edges_indexes.push_back({
+			node_ids.left.find(edge.first)->get_right(),
+			node_ids.left.find(edge.second)->get_right()
+		});
+	}
+	//Graph --> defined in "PaperGraphWidget.h"
+	//Graph graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+	graph = new Graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+	
+	//set index property
+	qDebug() << "* set vertex property start";
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+	int i = 0;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		//Vertex Property 설정
+		//index: 0 ~ ...
+		//name : map의 value(i) 기준으로 찾은 Key
+		//		map --> map<string, int> (boost bidirectional map)
+		boost::put(vertex_index, *graph, *vi, i);
+		boost::put(vertex_name, *graph, *vi,
+			node_ids.right.find(i)->get_left());
+
+		++i;
+	}
+	qDebug() << "* set vertex property end";
+
+	qDebug() << "* make graph layout start";
+	typedef square_topology<> Topology;
+	minstd_rand gen;
+	Topology topology(gen, (double)SCREEN_SIZE);
+	Topology::point_type origin;
+	origin[0] = origin[1] = (double)SCREEN_SIZE;
+	Topology::point_difference_type extent;
+	extent[0] = extent[1] = (double)SCREEN_SIZE;
+	rectangle_topology<> rect_top(gen,
+		-SCREEN_SIZE / 2, -SCREEN_SIZE / 2,
+		SCREEN_SIZE / 2, SCREEN_SIZE / 2);
+
+	switch (LAYOUT_MODE) {
+	case GRAPH_LAYOUT::RANDOM_LAYOUT:
+		random_graph_layout(*graph, get(vertex_position, *graph), rect_top);
+		break;
+
+	case GRAPH_LAYOUT::CIRCLE_LAYOUT:
+		circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+		break;
+
+	case GRAPH_LAYOUT::FRUCHTERMAN_REINGOLD_LAYOUT:
+		fruchterman_reingold_force_directed_layout(*graph,
+			get(vertex_position, *graph),
+			topology,
+			attractive_force(square_distance_attractive_force())
+			.cooling(linear_cooling<double>(50))
+		);
+		break;
+	}
+	qDebug() << "* make graph layout end";
+
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
+
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
+
+CoauthorGraphItem::CoauthorGraphItem(Graph* _graph)
+{
+	graph = _graph;
+
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+
+	typedef square_topology<> Topology;
+	minstd_rand gen;
+	Topology topology(gen, (double)SCREEN_SIZE);
+	Topology::point_type origin;
+	origin[0] = origin[1] = (double)SCREEN_SIZE;
+	Topology::point_difference_type extent;
+	extent[0] = extent[1] = (double)SCREEN_SIZE;
+	rectangle_topology<> rect_top(gen,
+		-SCREEN_SIZE / 2, -SCREEN_SIZE / 2,
+		SCREEN_SIZE / 2, SCREEN_SIZE / 2);
+
+	switch (LAYOUT_MODE) {
+	case GRAPH_LAYOUT::RANDOM_LAYOUT:
+		random_graph_layout(*graph, get(vertex_position, *graph), rect_top);
+		break;
+
+	case GRAPH_LAYOUT::CIRCLE_LAYOUT:
+		circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+		break;
+
+	case GRAPH_LAYOUT::FRUCHTERMAN_REINGOLD_LAYOUT:
+		fruchterman_reingold_force_directed_layout(*graph,
+			get(vertex_position, *graph),
+			topology,
+			attractive_force(square_distance_attractive_force())
+			.cooling(linear_cooling<double>(50))
+		);
+		break;
+	}
+
+	// vertex info(참여도) initialization
+	vector<int> vInfo;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
+		vInfo.push_back(0);
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto index = get(vertex_index, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;  int i;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		// vertex info set
+		i = index[ei->m_source];
+		vInfo[i]++;
+		i = index[ei->m_target];
+		vInfo[i]++;
+		
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	i = 0;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()),vInfo[i++]);
+
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
+
+void CoauthorGraphItem::updateGraph(ifstream& fin)
+{
+	if (!fin)
+		throw std::exception("coauthor graph file input is invalid");
+
+	/**
+	*	Parse Coauthor dataset
+	*	- author1, author2 publish_year
+	*	Column Delimiter:		||
+	*/
+	std::string line;
+	vector<std::string> tokens;
+
+	qDebug() << "* coauthor graph update start";
+
+	int local_line_cnt = 0;
+
+	//한 줄씩 읽어서 Parse
+	while (std::getline(fin, line) && !line.empty()) {
+
+		local_line_cnt++;
+
+		if (local_line_cnt > line_cnt) {
+			
+			line_cnt++;
+
+			//boost::split 이용해 문자열 분리
+			//tokens[0]: Author1
+			//tokens[1]: Author2
+			//tokens[2]: Published year.
+			boost::split(tokens, line, boost::is_any_of("||"), boost::token_compress_on);
+
+			const string& author1 = tokens[0];
+			const string& author2 = tokens[1];
+			if (node_ids.left.find(author1) == node_ids.left.end()) {
+				node_ids.insert(bm_type::value_type(author1, node_cnt++));
+			}
+
+			if (node_ids.left.find(author2) == node_ids.left.end()) {
+				node_ids.insert(bm_type::value_type(author2, node_cnt++));
+			}
+
+			edges.push_back(pair<string, string>(author1, author2));
+		}
+
+		//debug
+		if (node_cnt > NODE_LIMIT) break;
+
+	}
+	qDebug() << "* coauthor graph update complete";
+	qDebug() << "* # of nodes: " << node_cnt;
+	qDebug() << "* # of edges: " << edges.size();
+
+	//edge conversion
+	//<string, string> to <int, int>
+	//using boost::bimap (bidirectional map)
+	for (auto edge : edges) {
+		edges_indexes.push_back({
+			node_ids.left.find(edge.first)->get_right(),
+			node_ids.left.find(edge.second)->get_right()
+		});
+	}
+	//Graph --> defined in "PaperGraphWidget.h"
+	//Graph graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+	graph = new Graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+
+	//set index property
+	
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+	int i = 0;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		//Vertex Property 설정
+		//index: 0 ~ ...
+		//name : map의 value(i) 기준으로 찾은 Key
+		//		map --> map<string, int> (boost bidirectional map)
+		boost::put(vertex_index, *graph, *vi, i);
+		boost::put(vertex_name, *graph, *vi,
+			node_ids.right.find(i)->get_left());
+
+		++i;
+	}
+	
+	typedef square_topology<> Topology;
+	minstd_rand gen;
+	Topology topology(gen, (double)SCREEN_SIZE);
+	Topology::point_type origin;
+	origin[0] = origin[1] = (double)SCREEN_SIZE;
+	Topology::point_difference_type extent;
+	extent[0] = extent[1] = (double)SCREEN_SIZE;
+	rectangle_topology<> rect_top(gen,
+		-SCREEN_SIZE / 2, -SCREEN_SIZE / 2,
+		SCREEN_SIZE / 2, SCREEN_SIZE / 2);
+
+	switch (LAYOUT_MODE) {
+	case GRAPH_LAYOUT::RANDOM_LAYOUT:
+		random_graph_layout(*graph, get(vertex_position, *graph), rect_top);
+		break;
+
+	case GRAPH_LAYOUT::CIRCLE_LAYOUT:
+		circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+		break;
+
+	case GRAPH_LAYOUT::FRUCHTERMAN_REINGOLD_LAYOUT:
+		fruchterman_reingold_force_directed_layout(*graph,
+			get(vertex_position, *graph),
+			topology,
+			attractive_force(square_distance_attractive_force())
+			.cooling(linear_cooling<double>(50))
+		);
+		break;
+	}
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
+
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
+
+//override
+QRectF CoauthorGraphItem::boundingRect() const
+{
+	//TODO
+	return QRectF(-SCREEN_SIZE / 2, -SCREEN_SIZE / 2, SCREEN_SIZE, SCREEN_SIZE);
+}
+
+QPainterPath CoauthorGraphItem::shape() const
+{
+	QPainterPath path;
+	return path;
+}
+
+void CoauthorGraphItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	if (!graph)
+		return;
+
+	//debug
+	//-> x, y, w, h
+	//현재 Graph의 bounding rect 출력
+	/*QPen oldPen = painter->pen();
+	QPen pen = oldPen;
+	pen.setColor(Qt::red);
+	painter->setPen(pen);
+	painter->drawRect(QRectF(-SCREEN_SIZE/2, -SCREEN_SIZE/2, SCREEN_SIZE, SCREEN_SIZE));*/
+
+	//print edges
+	for (auto edge : edgeList) {
+		edge->paint(painter, option, widget);
+	}
+
+	//print nodes
+	for (auto node : nodeList) {
+		node->paint(painter, option, widget);
+	}
+}
+
+//event handler
+void CoauthorGraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+}
+
+void CoauthorGraphItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+}
+
+void CoauthorGraphItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+}
+
+Graph* CoauthorGraphItem::getGraph()
+{
+	return graph;
+}
+
+//==================================================================================================
+void CoauthorGraphItem::TopK(int K)
+{
+	for (int i = 0; i < K; i++)
+	{
+		if (i < K)
+		{
+			minHeap.push_back(nodeList[i]);
+			_ReheapUp(minHeap, 0, i);
+		}
+		else
+		{
+			if (*minHeap[i] < *nodeList[i])
+			{
+				minHeap[0] = nodeList[i];
+				_ReheapDown(minHeap, 0, K-1);
+			}
+		}
+	}
+
+	for (int i = 0; i < minHeap.size(); i++)
+		minHeap[i]->setColor(QColor(Qt::red));
+}
+
+void CoauthorGraphItem::TopKfromA(int K, QString author)
+{
+	int source;
+	for(int i=0;i<nodeList.size();i++)
+		if (author == nodeList[i]->getLabel())
+		{
+			source = i;
+			break;
+		}
+
+	vector<NodeItem*> adj;
+	auto index = get(vertex_index, *graph);
+	typename graph_traits<Graph>::edge_iterator ei, ei_end; int num;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei)
+	{
+		num = index[ei->m_source];
+		if (source == index[ei->m_target])
+			adj.push_back(nodeList[num]);
+
+		num = index[ei->m_target];
+		if (source == index[ei->m_source])
+			adj.push_back(nodeList[num]);
+	}
+
+	int size = K < adj.size() ? K : adj.size();
+
+	for (int i = 0; i < adj.size(); i++)
+	{
+		if (i < size)
+		{
+			minHeap.push_back(adj[i]);
+			_ReheapUp(minHeap, 0, i);
+		}
+		else
+		{
+			if (*minHeap[0] < *adj[i])
+			{
+				minHeap[0] = adj[i];
+				_ReheapDown(minHeap, 0, K - 1);
+			}
+		}
+	}
+
+	for (int i = 0; i < minHeap.size(); i++)
+		minHeap[i]->setColor(QColor(Qt::red));
+
+	nodeList[source]->setColor(QColor(Qt::blue));
+}
+
+void CoauthorGraphItem::chain(QString author1, QString author2)
+{
+	int src, dest;
+	for (int i = 0; i < nodeList.size(); i++)
+		if (author1 == nodeList[i]->getLabel())
+			src = i;
+		else if (author2 == nodeList[i]->getLabel())
+			dest = i;
+	//
+	vector<int> parents;
+	int** arr = new int*[nodeList.size()];
+	for (int i = 0; i < nodeList.size(); i++)
+	{
+		arr[i] = new int[nodeList.size()];
+		parents.push_back(i);
+		for (int j = 0; j < nodeList.size(); j++)
+			arr[i][j] = 0;
+	}
+
+	auto index = get(vertex_index, *graph);
+	typename graph_traits<Graph>::edge_iterator ei, ei_end; int num1,num2;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei)
+	{
+		num1 = index[ei->m_source];
+		num2 = index[ei->m_target];
+		
+		arr[num1][num2] = arr[num2][num1] = 1;
+	}
+
+	bool* check = new bool[nodeList.size()];
+	//
+	vector<int> MaxHeap;
+	
+	MaxHeap.push_back(src);
+	check[src] = true;
+	bool find = false;
+
+	while (!MaxHeap.empty()&&!find)
+	{
+		int temp = MaxHeap.front();
+		MaxHeap.erase(MaxHeap.begin());
+		ReheapDown(MaxHeap, 0, MaxHeap.size());
+
+		for (int i = 0; i < nodeList.size(); i++)
+		{
+			if (arr[temp][i] == 1 && !check[i])
+			{
+				parents[i] = temp;
+				check[i] = true;
+				MaxHeap.push_back(i);
+				ReheapUp(MaxHeap, 0, MaxHeap.size());
+
+				if (i == dest)
+					find = true;
+			}
+		}
+	}
+	//
+
+	parents[src] = src;
+
+	num1 = dest;
+	num2 = parents[num1];
+
+	auto position = get(vertex_position, *graph);
+
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	vertex_descriptor u, v;  int i;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		if ((index[ei->m_source] == num1 && index[ei->m_target] == num2) || (index[ei->m_source] == num2 && index[ei->m_target] == num1))
+		{
+			u = source(*ei, *graph);
+			v = target(*ei, *graph);
+
+			Point p1 = position[u];
+			Point p2 = position[v];
+
+			//make edge item and push it to list
+			EdgeItem *edge;
+			edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::blue), 3);
+
+			edge->setPos(p1[0], p1[1]);
+			edgeList << edge;
+
+			num1 = num2;
+			num2 = parents[num1];
+			if (num1 == num2)
+				break;
+		}
+	}
+
+	nodeList[src]->setColor(QColor(Qt::blue));
+	nodeList[dest]->setColor(QColor(Qt::blue));
+}
+
+//==================================================================================================
+//==================================================================================================
+
+PaperGraphItem::PaperGraphItem(ifstream& fin)
+{
+	if (!fin)
+		throw std::exception("paper graph file input is invalid");
+
+	/**
+	*	Parse Paper dataset
+	*	- paper_key, [author_list], publish_year
+	*	Column Delimiter:		||
+	*	Author list Delimiter:	&&
+	*/
+	std::string line;
+	vector<std::string> tokens;
+	vector<std::string> authors;
+
+	node_cnt = 0;
+	qDebug() << "* paper graph reading start";
+
+	//한 줄씩 읽어서 Parse
+	while (std::getline(fin, line) && !line.empty()) {
+		line_cnt++;
+
+		//boost::split 이용해 문자열 분리
+		//tokens[0]: Paper-key.	ex) conf/iastedCSN/KeimS06
+		//tokens[1]: Authors.	ex) Werner Keim&&Arpad L. Scholtz
+		//tokens[2]: Published year.
+		boost::split(tokens, line, boost::is_any_of("||"), boost::token_compress_on);
+		boost::split(authors, tokens[1], boost::is_any_of("&&"), boost::token_compress_on);
+
+		const string& paper_key = tokens[0];
+		if (node_ids.left.find(paper_key) == node_ids.left.end()) {
+			node_ids.insert(bm_type::value_type(paper_key, node_cnt++));
+		}
+
+		for (auto author : authors) {
+			edges.push_back(pair<string, string>(paper_key, author));
+			if (node_ids.left.find(author) == node_ids.left.end()) {
+				node_ids.insert(bm_type::value_type(author, node_cnt++));
+			}
+		}
+
+		//debug
+		if (node_cnt > NODE_LIMIT) break;
+	}
+	qDebug() << "* paper graph reading complete";
+	qDebug() << "* # of nodes: " << node_cnt;
+	qDebug() << "* # of edges: " << edges.size();
+
+	//edge conversion
+	//<string, string> to <int, int>
+	//using boost::bimap (bidirectional map)
+	for (auto edge : edges) {
+		edges_indexes.push_back({
+			node_ids.left.find(edge.first)->get_right(),
+			node_ids.left.find(edge.second)->get_right()
+		});
+	}
+	//Graph --> defined in "PaperGraphWidget.h"
+	//Graph graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+	graph = new Graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+
+	//set index property
+	qDebug() << "* set vertex property start";
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+	int i = 0;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		//Vertex Property 설정
+		//index: 0 ~ ...
+		//name : map의 value(i) 기준으로 찾은 Key
+		//		map --> map<string, int> (boost bidirectional map)
+		boost::put(vertex_index, *graph, *vi, i);
+		boost::put(vertex_name, *graph, *vi,
+			node_ids.right.find(i)->get_left());
+
+		++i;
+	}
+	qDebug() << "* set vertex property end";
+
+	qDebug() << "* make graph layout start";
+	typedef square_topology<> Topology;
+	minstd_rand gen;
+	Topology topology(gen, (double)SCREEN_SIZE);
+	Topology::point_type origin;
+	origin[0] = origin[1] = (double)SCREEN_SIZE;
+	Topology::point_difference_type extent;
+	extent[0] = extent[1] = (double)SCREEN_SIZE;
+	rectangle_topology<> rect_top(gen,
+		-SCREEN_SIZE / 2, -SCREEN_SIZE / 2,
+		SCREEN_SIZE / 2, SCREEN_SIZE / 2);
+
+	switch (LAYOUT_MODE) {
+	case GRAPH_LAYOUT::RANDOM_LAYOUT:
+		random_graph_layout(*graph, get(vertex_position, *graph), rect_top);
+		break;
+
+	case GRAPH_LAYOUT::CIRCLE_LAYOUT:
+		circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+		break;
+
+	case GRAPH_LAYOUT::FRUCHTERMAN_REINGOLD_LAYOUT:
+		fruchterman_reingold_force_directed_layout(*graph,
+			get(vertex_position, *graph),
+			topology,
+			attractive_force(square_distance_attractive_force())
+			.cooling(linear_cooling<double>(50))
+		);
+		break;
+	}
+	qDebug() << "* make graph layout end";
+
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+
+		if (label[u] == "conf/sbrn/GomesPSRC10" ||
+			label[u] == "conf/iastedCSN/KeimS06" ||
+			label[v] == "conf/sbrn/GomesPSRC10" ||
+			label[v] == "conf/iastedCSN/KeimS06") {
+			//highlight
+			edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::blue), 3);
+		}
+		else {
+			edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+		}
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		if (name == "conf/sbrn/GomesPSRC10" ||
+			name == "conf/iastedCSN/KeimS06") {
+			//highlight
+			node = new NodeItem(p[0], p[1], QColor(Qt::blue), QString(name.c_str()));
+		}
+		else {
+			node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
+		}
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
+
+void PaperGraphItem::updateGraph(ifstream& fin)
+{
+	if (!fin)
+		throw std::exception("paper graph file input is invalid");
+
+	/**
+	*	Parse Paper dataset
+	*	- paper_key, [author_list], publish_year
+	*	Column Delimiter:		||
+	*	Author list Delimiter:	&&
+	*/
+	std::string line;
+	vector<std::string> tokens;
+	vector<std::string> authors;
+
+	qDebug() << "* paper graph update start";
+
+	int local_line_cnt = 0;
+
+	//한 줄씩 읽어서 Parse
+	while (std::getline(fin, line) && !line.empty()) {
+
+		local_line_cnt++;
+
+		if (local_line_cnt > line_cnt) {
+
+			line_cnt++;
+
+			//boost::split 이용해 문자열 분리
+			//tokens[0]: Paper-key.	ex) conf/iastedCSN/KeimS06
+			//tokens[1]: Authors.	ex) Werner Keim&&Arpad L. Scholtz
+			//tokens[2]: Published year.
+			boost::split(tokens, line, boost::is_any_of("||"), boost::token_compress_on);
+			boost::split(authors, tokens[1], boost::is_any_of("&&"), boost::token_compress_on);
+
+			const string& paper_key = tokens[0];
+			if (node_ids.left.find(paper_key) == node_ids.left.end()) {
+				node_ids.insert(bm_type::value_type(paper_key, node_cnt++));
+			}
+
+			for (auto author : authors) {
+				edges.push_back(pair<string, string>(paper_key, author));
+				if (node_ids.left.find(author) == node_ids.left.end()) {
+					node_ids.insert(bm_type::value_type(author, node_cnt++));
+				}
+			}
+		}
+
+		//debug
+		if (node_cnt > NODE_LIMIT) break;
+
+	}
+	qDebug() << "* paper graph update complete";
+	qDebug() << "* # of nodes: " << node_cnt;
+	qDebug() << "* # of edges: " << edges.size();
+
+	//edge conversion
+	//<string, string> to <int, int>
+	//using boost::bimap (bidirectional map)
+	for (auto edge : edges) {
+		edges_indexes.push_back({
+			node_ids.left.find(edge.first)->get_right(),
+			node_ids.left.find(edge.second)->get_right()
+		});
+	}
+	//Graph --> defined in "PaperGraphWidget.h"
+	//Graph graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+	graph = new Graph(edges_indexes.begin(), edges_indexes.end(), node_ids.size());
+
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+	int i = 0;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		//Vertex Property 설정
+		//index: 0 ~ ...
+		//name : map의 value(i) 기준으로 찾은 Key
+		//		map --> map<string, int> (boost bidirectional map)
+		boost::put(vertex_index, *graph, *vi, i);
+		boost::put(vertex_name, *graph, *vi,
+			node_ids.right.find(i)->get_left());
+
+		++i;
+	}
+
+	typedef square_topology<> Topology;
+	minstd_rand gen;
+	Topology topology(gen, (double)SCREEN_SIZE);
+	Topology::point_type origin;
+	origin[0] = origin[1] = (double)SCREEN_SIZE;
+	Topology::point_difference_type extent;
+	extent[0] = extent[1] = (double)SCREEN_SIZE;
+	rectangle_topology<> rect_top(gen,
+		-SCREEN_SIZE / 2, -SCREEN_SIZE / 2,
+		SCREEN_SIZE / 2, SCREEN_SIZE / 2);
+
+	switch (LAYOUT_MODE) {
+	case GRAPH_LAYOUT::RANDOM_LAYOUT:
+		random_graph_layout(*graph, get(vertex_position, *graph), rect_top);
+		break;
+
+	case GRAPH_LAYOUT::CIRCLE_LAYOUT:
+		circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+		break;
+
+	case GRAPH_LAYOUT::FRUCHTERMAN_REINGOLD_LAYOUT:
+		fruchterman_reingold_force_directed_layout(*graph,
+			get(vertex_position, *graph),
+			topology,
+			attractive_force(square_distance_attractive_force())
+			.cooling(linear_cooling<double>(50))
+		);
+		break;
+	}
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+
+		if (label[u] == "conf/sbrn/GomesPSRC10" ||
+			label[u] == "conf/iastedCSN/KeimS06" ||
+			label[v] == "conf/sbrn/GomesPSRC10" ||
+			label[v] == "conf/iastedCSN/KeimS06") {
+			//highlight
+			edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::blue), 3);
+		}
+		else {
+			edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+		}
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		if (name == "conf/sbrn/GomesPSRC10" ||
+			name == "conf/iastedCSN/KeimS06") {
+			//highlight
+			node = new NodeItem(p[0], p[1], QColor(Qt::blue), QString(name.c_str()));
+		}
+		else {
+			node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
+		}
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
+
+//override
+QRectF PaperGraphItem::boundingRect() const
+{
+	//TODO
+	return QRectF(-SCREEN_SIZE / 2, -SCREEN_SIZE / 2, SCREEN_SIZE, SCREEN_SIZE);
+}
+
+QPainterPath PaperGraphItem::shape() const
+{
+	QPainterPath path;
+	return path;
+}
+
+void PaperGraphItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	if (!graph)
+		return;
+
+	//debug
+	//-> x, y, w, h
+	//현재 Graph의 bounding rect 출력
+	/*QPen oldPen = painter->pen();
+	QPen pen = oldPen;
+	pen.setColor(Qt::red);
+	painter->setPen(pen);
+	painter->drawRect(QRectF(-SCREEN_SIZE/2, -SCREEN_SIZE/2, SCREEN_SIZE, SCREEN_SIZE));*/
+
+	//print edges
+	for (auto edge : edgeList) {
+		edge->paint(painter, option, widget);
+	}
+
+	//print nodes
+	for (auto node : nodeList) {
+		node->paint(painter, option, widget);
+	}
+}
+
+//event handler
+void PaperGraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+}
+
+void PaperGraphItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+}
+
+void PaperGraphItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+}
+
+Graph* PaperGraphItem::getGraph()
+{
+	return graph;
+}

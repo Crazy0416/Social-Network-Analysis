@@ -1,5 +1,4 @@
-#ifndef GRAPHICSVIEW_H
-#define GRAPHICSVIEW_H
+#pragma once
 
 #include <QFrame>
 #include <QGraphicsView>
@@ -8,7 +7,6 @@
 //pre-declare
 class View;
 
-
 class GraphicsView
 	: public QGraphicsView
 {
@@ -16,8 +14,14 @@ class GraphicsView
 private:
 	View* view;
 
+protected:
+#ifndef QT_NO_WHEELEVENT
+	void wheelEvent(QWheelEvent *event) override;
+#endif
+	void scaleView(qreal scaleFactor);
+
 public:
-	GraphicsView(View *v): QGraphicsView(), view(v) {};
+	GraphicsView(View *v) : QGraphicsView(), view(v) {};
 };
 
 
@@ -32,10 +36,8 @@ public:
 	explicit View(const QString& name, QWidget *parent = 0);
 	QGraphicsView *view() const;
 
-public slots:
+	public slots:
 	/*void zoomIn(int level = 1);
 	void zoomOut(int level = 1);*/
 	void setupMatrix();
 };
-
-#endif // GRAPHICSVIEW_H

@@ -1,11 +1,12 @@
+#ifndef EDGEITEM_H
 #pragma once
+
 #include <QColor>
-#include <qgraphicsitem.h>
-#include <qdebug.h>
+#include <QGraphicsItem>
 
 
 class EdgeItem
-	: public QGraphicsLineItem
+	: public QGraphicsItem
 {
 private:
 	double x1, y1, x2, y2;
@@ -20,8 +21,9 @@ protected:
 public:
 	EdgeItem(double x1, double y1, double x2, double y2, QColor color, int width);
 
-	void setColor(QColor color);
 	QRectF boundingRect() const override;
 	QPainterPath shape() const override;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 };
+
+#endif // EDGEITEM_H

@@ -35,11 +35,17 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\qrc_dblpanalysisapp.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="dblpanalysisapp.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\qrc_CoauthorshipGraphWidget.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_subwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_subwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_dblpanalysisapp.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -47,34 +53,31 @@
     <ClCompile Include="GeneratedFiles\Release\moc_dblpanalysisapp.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_dblpanalysisapp.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_CoauthorshipGraphWidget.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_GraphicsView.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_GraphicsView.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_CoauthorshipGraphWidget.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_CoauthorshipGraphWidget.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="EdgeItem.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NodeItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CoauthorshipGraphWidget.cpp">
+    <ClCompile Include="subwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EdgeItem.cpp">
+    <ClCompile Include="dblpanalysisapp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="listInput.cpp">
@@ -88,9 +91,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="dblpanalysisapp.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="dblpanalysisapp.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
@@ -100,14 +100,17 @@
     <CustomBuild Include="CoauthorshipGraphWidget.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="GraphicsView.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CoauthorshipGraphWidget.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="CoauthorshipGraphWidget.ui">
       <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="subwindow.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dblpanalysisapp.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GraphicsView.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="listInput.h">
       <Filter>Header Files</Filter>
@@ -124,6 +127,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EdgeItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
