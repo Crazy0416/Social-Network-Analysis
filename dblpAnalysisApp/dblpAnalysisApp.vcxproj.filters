@@ -89,6 +89,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_listInput.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="SubscribeManageWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SubscribeManageWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SubscribeManageWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="dblpanalysisapp.ui">
@@ -113,6 +122,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="listInput.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SubscribeManageWidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

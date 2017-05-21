@@ -222,6 +222,7 @@ void dblpAnalysisApp::showSubscribe()
 
 void dblpAnalysisApp::manageSubscribe()
 {
-
+	subscribemanage = new SubscribeManageWidget();
+	subscribemanage->show();
 }
 //=====================================================================================================

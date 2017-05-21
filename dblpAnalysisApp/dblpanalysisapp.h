@@ -10,6 +10,7 @@
 #include "GraphItem.h"
 #include "subwindow.h"
 #include "listInput.h"
+#include "SubscribeManageWidget.h"
 
 class dblpAnalysisApp : public QMainWindow
 {
@@ -34,6 +35,7 @@ private:
 
 	QListWidget* subscribeListWidget;		// 구독자 리스트 위젯
 	vector<QString> subscribeArray;			// 구독자 이름 배열
+	SubscribeManageWidget* subscribemanage;	//	
 
 	public slots :
 	// 스트리밍 데이터 처리

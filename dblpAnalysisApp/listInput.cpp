@@ -14,7 +14,7 @@ ListInput::ListInput(QWidget *parent)
 	selectButton = new QPushButton("select",this);
 
 	topLayout->addWidget(listwidget, 100, 1000);
-	topLayout->addWidget(selectButton, 200, 100);
+	topLayout->addWidget(selectButton, 1200, 100);
 
 	setLayout(topLayout);
 	setBaseSize(500, 500);
