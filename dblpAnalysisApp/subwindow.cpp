@@ -23,14 +23,25 @@ subwindow::~subwindow()
 
 }
 //=====================================================================================================
+void subwindow::initscene()
+{
+	scene = new QGraphicsScene(this);
+}
+
 void subwindow::setGraph(CoauthorGraphItem* pCGI)
 {
 	QGraphicsItem* graph_item = pCGI;
 	graph_item->setPos(0, 0);
-	scene->addItem(graph_item);
+	scene->addItem(pCGI);
+	for (auto index : pCGI->getNodeList())
+	{
+		scene->addItem(index);
+	}
 }
-//=====================================================================================================
-void subwindow::initscene()
+
+void subwindow::setGraph(PaperGraphItem* pPGI)
 {
-	scene = new QGraphicsScene(this);
+	QGraphicsItem* graph_item = pPGI;
+	graph_item->setPos(0, 0);
+	scene->addItem(graph_item);
 }

@@ -1,5 +1,6 @@
 #include "GraphicsView.h"
 #include <qmath.h>
+#include <qdebug.h>
 #include <QKeyEvent>
 
 //View
@@ -43,6 +44,11 @@ void GraphicsView::wheelEvent(QWheelEvent * event)
 	scaleView(pow((double)2, event->delta() / 240.0));
 }
 #endif
+void GraphicsView::mousePressEvent(QMouseEvent *event)
+{
+	qDebug() << "Custum view clicked.";
+	QGraphicsView::mousePressEvent(event);
+}
 
 void GraphicsView::scaleView(qreal scaleFactor)
 {

@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_dblpAnalysisApp_t {
-    QByteArrayData data[12];
-    char stringdata0[149];
+    QByteArrayData data[13];
+    char stringdata0[184];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -40,15 +40,17 @@ QT_MOC_LITERAL(5, 56, 9), // "Main_TopK"
 QT_MOC_LITERAL(6, 66, 14), // "Main_TopKfromA"
 QT_MOC_LITERAL(7, 81, 10), // "Main_Chain"
 QT_MOC_LITERAL(8, 92, 19), // "Main_AuthorCrawling"
-QT_MOC_LITERAL(9, 112, 6), // "showPG"
-QT_MOC_LITERAL(10, 119, 13), // "showSubscribe"
-QT_MOC_LITERAL(11, 133, 15) // "manageSubscribe"
+QT_MOC_LITERAL(9, 112, 26), // "Main_VisualizationInCircle"
+QT_MOC_LITERAL(10, 139, 14), // "Main_Filtering"
+QT_MOC_LITERAL(11, 154, 13), // "showSubscribe"
+QT_MOC_LITERAL(12, 168, 15) // "manageSubscribe"
 
     },
     "dblpAnalysisApp\0updateCGI\0\0updatePGI\0"
     "Main_Visualization\0Main_TopK\0"
     "Main_TopKfromA\0Main_Chain\0Main_AuthorCrawling\0"
-    "showPG\0showSubscribe\0manageSubscribe"
+    "Main_VisualizationInCircle\0Main_Filtering\0"
+    "showSubscribe\0manageSubscribe"
 };
 #undef QT_MOC_LITERAL
 
@@ -58,7 +60,7 @@ static const uint qt_meta_data_dblpAnalysisApp[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      11,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -66,18 +68,20 @@ static const uint qt_meta_data_dblpAnalysisApp[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   64,    2, 0x0a /* Public */,
-       3,    0,   65,    2, 0x0a /* Public */,
-       4,    0,   66,    2, 0x0a /* Public */,
-       5,    0,   67,    2, 0x0a /* Public */,
-       6,    0,   68,    2, 0x0a /* Public */,
-       7,    0,   69,    2, 0x0a /* Public */,
-       8,    0,   70,    2, 0x0a /* Public */,
-       9,    0,   71,    2, 0x0a /* Public */,
-      10,    0,   72,    2, 0x0a /* Public */,
-      11,    0,   73,    2, 0x0a /* Public */,
+       1,    0,   69,    2, 0x0a /* Public */,
+       3,    0,   70,    2, 0x0a /* Public */,
+       4,    0,   71,    2, 0x0a /* Public */,
+       5,    0,   72,    2, 0x0a /* Public */,
+       6,    0,   73,    2, 0x0a /* Public */,
+       7,    0,   74,    2, 0x0a /* Public */,
+       8,    0,   75,    2, 0x0a /* Public */,
+       9,    0,   76,    2, 0x0a /* Public */,
+      10,    0,   77,    2, 0x0a /* Public */,
+      11,    0,   78,    2, 0x0a /* Public */,
+      12,    0,   79,    2, 0x0a /* Public */,
 
  // slots: parameters
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -105,9 +109,10 @@ void dblpAnalysisApp::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         case 4: _t->Main_TopKfromA(); break;
         case 5: _t->Main_Chain(); break;
         case 6: _t->Main_AuthorCrawling(); break;
-        case 7: _t->showPG(); break;
-        case 8: _t->showSubscribe(); break;
-        case 9: _t->manageSubscribe(); break;
+        case 7: _t->Main_VisualizationInCircle(); break;
+        case 8: _t->Main_Filtering(); break;
+        case 9: _t->showSubscribe(); break;
+        case 10: _t->manageSubscribe(); break;
         default: ;
         }
     }
@@ -139,13 +144,13 @@ int dblpAnalysisApp::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 11;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 11)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 11;
     }
     return _id;
 }

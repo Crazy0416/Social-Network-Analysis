@@ -17,6 +17,7 @@ private:
 protected:
 #ifndef QT_NO_WHEELEVENT
 	void wheelEvent(QWheelEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
 #endif
 	void scaleView(qreal scaleFactor);
 

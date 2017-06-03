@@ -4,6 +4,13 @@
 
 void NodeItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+	std::string temp2 = std::to_string(weightSum);
+	std::string temp3 = "";
+	for (int i = 0; i < coauthorList.size(); i++)
+		temp3 = temp3 + coauthorList[i] + ",";
+	std::string temp = label.toStdString().append("\nedge count : ") + temp2;
+	temp.append("\ncoauthor : ").append(temp3);
+	int ret = QMessageBox::warning(NULL, QMessageBox::tr("Node info"), QMessageBox::tr(temp.c_str()), QMessageBox::Cancel, QMessageBox::Cancel);
 }
 
 void NodeItem::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
@@ -24,6 +31,17 @@ NodeItem::NodeItem(double x, double y, QColor color, QString label)
 
 	setFlags(ItemIsSelectable | ItemIsMovable);
 	setAcceptHoverEvents(true);
+}
+
+NodeItem::NodeItem(double x, double y, QColor color, QString label, int weightSum, std::vector<std::string> coauthorList)
+{
+	this->x = x;
+	this->y = y;
+	this->color = color;
+	this->label = label;
+	this->weightSum = weightSum;
+	this->coauthorList = coauthorList;
+	setZValue(1);
 }
 
 NodeItem::NodeItem(double x, double y, QColor color, QString label, int weightSum)

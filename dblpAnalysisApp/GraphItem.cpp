@@ -191,17 +191,40 @@ CoauthorGraphItem::CoauthorGraphItem(ifstream& fin)
 	}
 	qDebug() << "* make graph layout end";
 
+	// vertex info(참여도) initialization  TODO : 수정중@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
+	vector<int> vInfo;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
+		vInfo.push_back(0);
+
+	vector<vector<std::string>> vcoauthor;		// vertex coauthor(노드 공동 작업자 이름 벡터)
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
+	{
+		vector<std::string> tmp;
+		vcoauthor.push_back(tmp);
+	}
 
 	//add edges
 	typedef square_topology<> Topology;
 	typedef typename Topology::point_type Point;
 	auto position = get(vertex_position, *graph);
+	auto index = get(vertex_index, *graph);
 	auto label = get(vertex_name, *graph);
 
 	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
 	typename graph_traits<Graph>::edge_iterator ei, ei_end;
 	vertex_descriptor u, v;
 	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		// vertex info set
+		i = index[ei->m_source];
+		vInfo[i]++;
+
+		vcoauthor[i].push_back(label[ei->m_target]);		// coauthor 이름 벡터에 넣음
+
+		i = index[ei->m_target];
+		vInfo[i]++;
+		vcoauthor[i].push_back(label[ei->m_source]);
+
+
 		u = source(*ei, *graph);
 		v = target(*ei, *graph);
 		Point p1 = position[u];
@@ -214,7 +237,7 @@ CoauthorGraphItem::CoauthorGraphItem(ifstream& fin)
 		edge->setPos(p1[0], p1[1]);
 		edgeList << edge;
 	}
-
+	i = 0;
 	//add nodes
 	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
 		Point p = position[*vi];
@@ -222,10 +245,10 @@ CoauthorGraphItem::CoauthorGraphItem(ifstream& fin)
 
 		//make node item and push it to list
 		NodeItem *node;
-		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
-
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()), vInfo[i], vcoauthor[i]);
 		node->setPos(QPointF(p[0], p[1]));
 		nodeList << node;
+		i++;
 	}
 }
 
@@ -272,6 +295,13 @@ CoauthorGraphItem::CoauthorGraphItem(Graph* _graph)
 	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
 		vInfo.push_back(0);
 
+	vector<vector<std::string>> vcoauthor;		// vertex coauthor(노드 공동 작업자 이름 벡터)
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
+	{
+		vector<std::string> tmp;
+		vcoauthor.push_back(tmp);
+	}
+
 	//add edges
 	typedef square_topology<> Topology;
 	typedef typename Topology::point_type Point;
@@ -286,6 +316,9 @@ CoauthorGraphItem::CoauthorGraphItem(Graph* _graph)
 		// vertex info set
 		i = index[ei->m_source];
 		vInfo[i]++;
+
+		vcoauthor[i].push_back(label[ei->m_target]);		// coauthor 이름 벡터에 넣음
+
 		i = index[ei->m_target];
 		vInfo[i]++;
 		
@@ -310,7 +343,7 @@ CoauthorGraphItem::CoauthorGraphItem(Graph* _graph)
 
 		//make node item and push it to list
 		NodeItem *node;
-		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()),vInfo[i++]);
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()),vInfo[i++], vcoauthor[i]);
 
 		node->setPos(QPointF(p[0], p[1]));
 		nodeList << node;
@@ -509,6 +542,7 @@ void CoauthorGraphItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 //event handler
 void CoauthorGraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	qDebug() << "CoauthorGraphItem Click";
 }
 
 void CoauthorGraphItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -695,6 +729,51 @@ void CoauthorGraphItem::chain(QString author1, QString author2)
 }
 
 //==================================================================================================
+void CoauthorGraphItem::VisualizationInCircle()
+{
+	nodeList.clear();
+	edgeList.clear();
+
+	circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
+
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
 //==================================================================================================
 
 PaperGraphItem::PaperGraphItem(ifstream& fin)
@@ -857,6 +936,112 @@ PaperGraphItem::PaperGraphItem(ifstream& fin)
 		else {
 			node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
 		}
+		node->setPos(QPointF(p[0], p[1]));
+		nodeList << node;
+	}
+}
+
+PaperGraphItem::PaperGraphItem(Graph* _graph)
+{
+	graph = _graph;
+
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+
+	typedef square_topology<> Topology;
+	minstd_rand gen;
+	Topology topology(gen, (double)SCREEN_SIZE);
+	Topology::point_type origin;
+	origin[0] = origin[1] = (double)SCREEN_SIZE;
+	Topology::point_difference_type extent;
+	extent[0] = extent[1] = (double)SCREEN_SIZE;
+	rectangle_topology<> rect_top(gen,
+		-SCREEN_SIZE / 2, -SCREEN_SIZE / 2,
+		SCREEN_SIZE / 2, SCREEN_SIZE / 2);
+
+	switch (LAYOUT_MODE) {
+	case GRAPH_LAYOUT::RANDOM_LAYOUT:
+		random_graph_layout(*graph, get(vertex_position, *graph), rect_top);
+		break;
+
+	case GRAPH_LAYOUT::CIRCLE_LAYOUT:
+		circle_graph_layout(*graph, get(vertex_position, *graph), SCREEN_SIZE / 2);
+		break;
+
+	case GRAPH_LAYOUT::FRUCHTERMAN_REINGOLD_LAYOUT:
+		fruchterman_reingold_force_directed_layout(*graph,
+			get(vertex_position, *graph),
+			topology,
+			attractive_force(square_distance_attractive_force())
+			.cooling(linear_cooling<double>(50))
+		);
+		break;
+	}
+	// vertex info(참여도) initialization
+	vector<int> vInfo;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
+		vInfo.push_back(0);
+
+	//add edges
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto index = get(vertex_index, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v; int i;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		// vertex info set
+		i = index[ei->m_source];
+		vInfo[i]++;
+		i = index[ei->m_target];
+		vInfo[i]++;
+
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		//make edge item and push it to list
+		EdgeItem *edge;
+
+		/*   if (label[u] == "conf/sbrn/GomesPSRC10" ||
+		label[u] == "conf/iastedCSN/KeimS06" ||
+		label[v] == "conf/sbrn/GomesPSRC10" ||
+		label[v] == "conf/iastedCSN/KeimS06") {
+		//highlight
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::blue), 3);
+		}
+		else {
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+		}*/
+		edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+		edge->setPos(p1[0], p1[1]);
+		edgeList << edge;
+	}
+
+	//add nodes
+	i = 0;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi) {
+		Point p = position[*vi];
+		std::string name = label[*vi];
+
+		//make node item and push it to list
+		NodeItem *node;
+		/*if (name == "conf/sbrn/GomesPSRC10" ||
+		name == "conf/iastedCSN/KeimS06") {
+		//highlight
+		node = new NodeItem(p[0], p[1], QColor(Qt::blue), QString(name.c_str()));
+		}
+		else {
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()));
+		}*/
+
+		node = new NodeItem(p[0], p[1], QColor(Qt::green), QString(name.c_str()), vInfo[i++]);
 		node->setPos(QPointF(p[0], p[1]));
 		nodeList << node;
 	}
@@ -1083,4 +1268,183 @@ void PaperGraphItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 Graph* PaperGraphItem::getGraph()
 {
 	return graph;
+}
+void PaperGraphItem::Filtering(QString _year, QString _conf)
+{
+	_year.remove(0, 2);
+	string year = _year.toUtf8().constData();
+	string conf = _conf.toUtf8().constData();
+
+	nodeList.clear();
+	edgeList.clear();
+
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		u = source(*ei, *graph);
+		v = target(*ei, *graph);
+		Point p1 = position[u];
+		Point p2 = position[v];
+
+		EdgeItem *edge;
+		NodeItem *node1;
+		NodeItem *node2;
+		if ((label[u].find(conf) != -1 || label[v].find(conf) != -1) && (label[u].find(year) != -1 || label[v].find(year) != -1))
+		{
+
+
+			edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+			edge->setPos(p1[0], p1[1]);
+			edgeList << edge;
+
+			node1 = new NodeItem(p1[0], p1[1], QColor(Qt::green), QString(label[u].c_str()));
+			node2 = new NodeItem(p2[0], p2[1], QColor(Qt::green), QString(label[v].c_str()));
+
+			node1->setPos(QPoint(p1[0], p1[1]));
+			node2->setPos(QPoint(p2[0], p2[1]));
+			nodeList << node1 << node2;
+		}
+	}
+
+	for (int i = 0; i < nodeList.size(); i++)
+	{
+		if (nodeList[i]->getLabel().contains("conf"))
+			nodeList[i]->setColor(QColor(Qt::blue));
+	}
+}
+void PaperGraphItem::TopKUsingPaper(QString criteria, QString _year, QString _conf, int K)
+{
+	_year.remove(0, 2);
+	string year = _year.toUtf8().constData();
+	string conf = _conf.toUtf8().constData();
+
+	typedef typename graph_traits<Graph>::edge_iterator edge_iterator;
+	typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
+	vertex_iterator vi, vi_end;
+	typedef square_topology<> Topology;
+	typedef typename Topology::point_type Point;
+	auto position = get(vertex_position, *graph);
+	auto index = get(vertex_index, *graph);
+	auto label = get(vertex_name, *graph);
+
+	typedef boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+	typename graph_traits<Graph>::edge_iterator ei, ei_end;
+	vertex_descriptor u, v;
+
+	vector<int> vInfo;
+	for (boost::tie(vi, vi_end) = vertices(*graph); vi != vi_end; ++vi)
+		vInfo.push_back(0);
+
+	int num;
+	for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+		// vertex info set
+		num = index[ei->m_source];
+		vInfo[num]++;
+		num = index[ei->m_target];
+		vInfo[num]++;
+	}
+
+	if (criteria == "Year")
+	{
+		nodeList.clear();
+		edgeList.clear();
+
+		for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+			u = source(*ei, *graph);
+			v = target(*ei, *graph);
+			Point p1 = position[u];
+			Point p2 = position[v];
+
+			int num1 = index[ei->m_source];
+			int num2 = index[ei->m_target];
+
+			//make edge item and push it to list
+			EdgeItem *edge;
+			NodeItem *node1;
+			NodeItem *node2;
+			if (label[u].find(year) != -1 || label[v].find(year) != -1)
+			{
+				edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+				edge->setPos(p1[0], p1[1]);
+				edgeList << edge;
+
+				node1 = new NodeItem(p1[0], p1[1], QColor(Qt::green), QString(label[u].c_str()), vInfo[num1]);
+				node2 = new NodeItem(p2[0], p2[1], QColor(Qt::green), QString(label[v].c_str()), vInfo[num2]);
+
+				node1->setPos(QPoint(p1[0], p1[1]));
+				node2->setPos(QPoint(p2[0], p2[1]));
+				nodeList << node1 << node2;
+			}
+		}
+	}
+	else if (criteria == "Conference")
+	{
+		nodeList.clear();
+		edgeList.clear();
+
+		for (boost::tie(ei, ei_end) = boost::edges(*graph); ei != ei_end; ++ei) {
+			u = source(*ei, *graph);
+			v = target(*ei, *graph);
+			Point p1 = position[u];
+			Point p2 = position[v];
+
+			int num1 = index[ei->m_source];
+			int num2 = index[ei->m_target];
+
+			//make edge item and push it to list
+			EdgeItem *edge;
+			NodeItem *node1;
+			NodeItem *node2;
+			if (label[u].find(conf) != -1 || label[v].find(conf) != -1)
+			{
+				edge = new EdgeItem(p1[0], p1[1], p2[0], p2[1], QColor(Qt::black), 0);
+				edge->setPos(p1[0], p1[1]);
+				edgeList << edge;
+
+				node1 = new NodeItem(p1[0], p1[1], QColor(Qt::green), QString(label[u].c_str()), vInfo[num1]);
+				node2 = new NodeItem(p2[0], p2[1], QColor(Qt::green), QString(label[v].c_str()), vInfo[num2]);
+
+				node1->setPos(QPoint(p1[0], p1[1]));
+				node2->setPos(QPoint(p2[0], p2[1]));
+				nodeList << node1 << node2;
+			}
+		}
+	}
+
+	qDebug() << "hello";
+
+	int j = 0;
+	for (int i = 0; i < K; i++)
+	{
+		if (nodeList[i]->getLabel().contains("conf"))
+			continue;
+
+		if (j < K)
+		{
+			j++;
+			minHeap.push_back(nodeList[i]);
+			_ReheapUp(minHeap, 0, j);
+		}
+		else
+		{
+			if (*minHeap[0] < *nodeList[i])
+			{
+				minHeap[0] = nodeList[i];
+				_ReheapDown(minHeap, 0, K - 1);
+			}
+		}
+	}
+
+	for (int i = 0; i < minHeap.size(); i++)
+		minHeap[i]->setColor(QColor(Qt::red));
 }

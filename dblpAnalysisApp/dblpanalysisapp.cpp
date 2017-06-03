@@ -57,8 +57,11 @@ dblpAnalysisApp::dblpAnalysisApp(QWidget *parent)
 	pAppMenu->addAction(pSlotAuthorCrawling);
 	
 	// 추가 기능 메뉴 설정
-	QAction *pSlotshowPG = new QAction(tr("showPG"), this);
-	QObject::connect(pSlotshowPG, SIGNAL(triggered()), this, SLOT(showPG()));
+	QAction *pSlotVisualizeInCircle = new QAction(tr("Visualization In Circle Layer"), this);
+	QObject::connect(pSlotVisualizeInCircle, SIGNAL(triggered()), this, SLOT(Main_VisualizationInCircle()));
+
+	QAction *pSlotFiltering = new QAction(tr("Filtering"), this);
+	QObject::connect(pSlotFiltering, SIGNAL(triggered()), this, SLOT(Main_Filtering()));
 
 	QAction *pSlotshowSubscribe = new QAction(tr("showSubscribeList"), this);
 	QObject::connect(pSlotshowSubscribe, SIGNAL(triggered()), this, SLOT(showSubscribe()));
@@ -67,9 +70,10 @@ dblpAnalysisApp::dblpAnalysisApp(QWidget *parent)
 	QObject::connect(pSlotmanageSubscribe, SIGNAL(triggered()), this, SLOT(manageSubscribe()));
 
 	pAppMenu = menuBar()->addMenu(tr("Additional Menu"));
-	pAppMenu->addAction(pSlotshowPG);
 	pAppMenu->addAction(pSlotshowSubscribe);
 	pAppMenu->addAction(pSlotmanageSubscribe);
+	pAppMenu->addAction(pSlotVisualizeInCircle);
+	pAppMenu->addAction(pSlotFiltering);
 }
 
 dblpAnalysisApp::~dblpAnalysisApp()
@@ -205,8 +209,31 @@ void dblpAnalysisApp::Main_AuthorCrawling()
 	list->show();
 }
 //=====================================================================================================
-void dblpAnalysisApp::showPG()
+void dblpAnalysisApp::Main_VisualizationInCircle()
 {
+	CoauthorGraphItem* pTempCGI = new CoauthorGraphItem(pCGI->getGraph());
+
+	pTempCGI->VisualizationInCircle();
+
+	subwindow* sw = new subwindow;
+	sw->setGraph(pTempCGI);
+	sw->show();
+}
+
+void dblpAnalysisApp::Main_Filtering()
+{
+	qDebug() << "Hello";
+	PaperGraphItem* pTempPGI = new PaperGraphItem(pPGI->getGraph());
+
+	bool ok;
+	QString year = QInputDialog::getText(NULL, "Year", "Year", QLineEdit::Normal, "", &ok);
+	QString conf = QInputDialog::getText(NULL, "Conference", "Conference", QLineEdit::Normal, "", &ok);
+
+	pTempPGI->Filtering(year, conf);
+
+	subwindow* sw = new subwindow;
+	sw->setGraph(pTempPGI);
+	sw->show();
 }
 
 void dblpAnalysisApp::showSubscribe()

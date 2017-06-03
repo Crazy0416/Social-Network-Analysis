@@ -50,7 +50,8 @@ private:
 	void Main_AuthorCrawling();
 
 	// 추가 기능
-	void showPG();
+	void Main_VisualizationInCircle();
+	void Main_Filtering();
 	void showSubscribe();
 	void manageSubscribe();
 };

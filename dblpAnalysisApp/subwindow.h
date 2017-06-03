@@ -21,6 +21,7 @@ public:
 	~subwindow();
 
 	void setGraph(CoauthorGraphItem* pCGI);
+	void setGraph(PaperGraphItem* pPGI);
 
 private:
 	void initscene();
